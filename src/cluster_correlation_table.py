@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def statistic_table(prediction, metadata):
+def cluster_correlation_table(prediction, metadata):
     """
     Table for correlation checking between predicted clusters 
     and known metadata for sample points
