@@ -34,13 +34,14 @@ def plot_by_groups(data, colours, type_name='colours', opacity=1.0, name=None, s
     
     fig = plt.figure(figsize=(8, 8))
     data_proj = Isomap(n_components=dim).fit_transform(data) # gets projected data by means of Isomap
+    colours_str = pd.Series(colours.astype(np.int), dtype='string')
     if dim == 2:
-        df = pd.DataFrame({type_name: colours, 'x':data_proj[:, 0], 'y':data_proj[:, 1], \
-                           'size':size*np.ones(X.shape[0])}) # forms DataFrame for using plotly functions
+        df = pd.DataFrame({type_name: colours_str, 'x':data_proj[:, 0], 'y':data_proj[:, 1], \
+                           'size':size*np.ones(data_proj.shape[0])}) # forms DataFrame for using plotly functions
         fig = px.scatter(df, x='x', y='y', color=type_name, opacity=opacity, size='size', size_max=size)
     else:
-        df = pd.DataFrame({type_name: colours, 'x':data_proj[:, 0], 'y':data_proj[:, 1], 'z':data_proj[:, 2], \
-                           'size':size*np.ones(X.shape[0])}) # forms DataFrame for using plotly functions
+        df = pd.DataFrame({type_name: colours_str, 'x':data_proj[:, 0], 'y':data_proj[:, 1], 'z':data_proj[:, 2], \
+                           'size':size*np.ones(data_proj.shape[0])}) # forms DataFrame for using plotly functions
         fig = px.scatter_3d(df, x='x', y='y', z='z', color=type_name, opacity=opacity, size='size', size_max=size)
     if name != None:
         fig.write_html(name + ".html")
