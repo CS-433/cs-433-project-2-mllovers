@@ -3,6 +3,7 @@ from torch.nn import Module, Parameter
 from torch.nn.functional import softmax, log_softmax
 from sklearn.manifold import Isomap
 import matplotlib.pyplot as plt
+from visualization_helpers import plot_by_groups
 
 class DirichletMixture(Module):
     def __init__(self, M, sparsity=0, D=12, transposition=True):
@@ -129,30 +130,24 @@ class DirichletMixture(Module):
         label = torch.argmax(self.likelihoods(sample), dim=0)
         return label
 
-    def plot_clusters(self, sample, labels, dims=2, metric='minkowski', text_data=None):
+    def plot_clusters(self, sample, labels, dim=2, size=4, name='clusters_visualization', opacity=0.9):
         """
         Plot clusters of samples according to predicted labels
         Parameters:
             - sample: tensor (number of samples, number of features)
-            Input data(pitch scapes)
+              Input data (pitch scapes)
             - labels: tensor (number of samples)
-            Oredicted labels for input data
-            - dims: int scalar = {2,3}. Default: 2
-            Value of dimension to map for Isomap
-            - metric: str. Default: 'minkowski'
-            metric of closeness for Isomap to use
-            - text_data: str (number of samples). Default: None
-            Additional data to print on a graph for each point with dimension number of points
+              Oredicted labels for input data
+            - dim: int, 2 or 3
+              A parameter that defines the dimension of the projected data. Default: 2 
+            - size: int
+              A parameter that defines the size of points. Default: 4 
+            - name: str
+              A name that is used for saving the plot. If None is given, it doesn't save the plot.
+              Default: None
+            - opacity: float or array-like (number of samples, )
+              A parameter is in the interval [0, 1] that determines the visibility of points. 
+              Default: 1.0
         """
-        fig = plt.figure(figsize=(15, 8))
-        embedding = Isomap(n_components=dims, metric=metric) # initialize Isomap algorithm
-        X = sample.detach().cpu().numpy() # samples have to be numpy array-like, not tensor 
-        X = embedding.fit_transform(X) # Fit Isomap
-        labels = labels.detach().cpu().numpy() # labels have to be numpy array-like, not tensor
-        if dims == 2:
-            plt.scatter(X[:, 0], X[:, 1], c=labels, cmap=plt.cm.Spectral) # Map to 2d plane
-            plt.show()
-        else:
-            df = pd.DataFrame({'cluster':labels, 'x':X[:, 0], 'y':X[:, 1], 'z':X[:, 2]})
-            fig = px.scatter_3d(df, x='x', y='y', z='z', color='cluster', text=text_data) # Map to 3d space
-            fig.show()
+        plot_by_groups(sample.detach().cpu().numpy(), labels.detach().cpu().numpy(), \
+                       type_name='cluster', opacity=opacity, name=name, size=size, dim=dim)
