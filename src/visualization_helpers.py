@@ -85,10 +85,15 @@ profiles = {
                   0.06212424849699398, 0.022044088176352703, 0.06112224448897795, 0.05210420841683366]}
 }
 
-notes = ['C Major', 'C Minor', 'C# Major', 'C# Minor', 'D Major', 'D Minor',  
-         'D# Major', 'D# Minor', 'E Major', 'E Minor', 'F Major', 'F Minor',  
-         'F# Major', 'F# Minor', 'G Major', 'G Minor', 'G# Major', 'G# Minor',  
-         'A Major', 'A Minor', 'A# Major', 'A# Minor', 'B Major', 'B Minor']
+# notes = ['C Major', 'C Minor', 'C# Major', 'C# Minor', 'D Major', 'D Minor',  
+#          'D# Major', 'D# Minor', 'E Major', 'E Minor', 'F Major', 'F Minor',  
+#          'F# Major', 'F# Minor', 'G Major', 'G Minor', 'G# Major', 'G# Minor',  
+#          'A Major', 'A Minor', 'A# Major', 'A# Minor', 'B Major', 'B Minor']
+
+notes = ['C Major', 'C Minor', 'G Major', 'G Minor', 'D Major', 'D Minor',  
+         'A Major', 'A Minor', 'E Major', 'E Minor', 'B Major', 'B Minor',  
+         'F# Major', 'F# Minor', 'C# Major', 'C# Minor', 'G# Major', 'G# Minor',  
+         'D# Major', 'D# Minor', 'A# Major', 'A# Minor', 'F Major', 'F Minor', 'C Major', 'C Minor']
 
 def get_landmarks(landmark_name):
     '''
@@ -104,7 +109,8 @@ def get_landmarks(landmark_name):
     orig_profile = np.stack([profiles[landmark_name]['major'], profiles[landmark_name]['minor']], axis=0).astype(np.float64)
     transp_landmarks = orig_profile
     for i in range(1, num_transp):
-        transp_landmarks = np.concatenate([transp_landmarks, np.roll(orig_profile, i, -1)], axis=0)
+        transp_landmarks = np.concatenate([transp_landmarks, np.roll(orig_profile, i * 7, -1)], axis=0)
+    transp_landmarks = np.concatenate([transp_landmarks, orig_profile], axis=0)
     return transp_landmarks  
 
 def plot_transposition_with_centers(data, transposition, major_minor, text, assignments=None, landmarks=False, \
@@ -147,7 +153,7 @@ def plot_transposition_with_centers(data, transposition, major_minor, text, assi
                        'y': data_proj[major_minor==1, 1], 'z': data_proj[major_minor==1, 2], 'text': text[major_minor==1]})
     df_minor = pd.DataFrame({'note': transposition[major_minor==0], 'x': data_proj[major_minor==0, 0], \
                         'y': data_proj[major_minor==0, 1], 'z': data_proj[major_minor==0, 2], 'text': text[major_minor==0]})
-    
+    # Plots points with its transpositions
     fig_data = [go.Scatter3d(x=df_major['x'], y=df_major['y'], z=df_major['z'], mode='markers', text=df_major['text'], \
                              marker=dict(size=size, color=df_major['note'], opacity=opacity)),
                 go.Scatter3d(x=df_minor['x'], y=df_minor['y'], z=df_minor['z'], mode='markers', text=df_minor['text'], \
@@ -159,24 +165,36 @@ def plot_transposition_with_centers(data, transposition, major_minor, text, assi
         for i in np.unique(assignments):
             centers.append(np.mean(data_proj[assignments == i], axis=0))
         centers = np.array(centers)
+        # Plots clusters centers
         centers = pd.DataFrame({'x': centers[:, 0], 'y': centers[:, 1], 'z': centers[:, 2]})
         fig_data.append(go.Scatter3d(x=centers['x'], y=centers['y'], z=centers['z'], mode='markers', text='Center', \
                                      marker=dict(size=10, colorscale='Viridis', color=np.arange(centers.shape[0]),  \
                                      symbol='diamond', opacity=1.0)))
         name += '_with_centers_' + str(len(centers))
     if landmarks:
+        # Plots connected landmarks
         landmarks = isomap.transform(get_landmarks(landmark_name))
-        landmarks = pd.DataFrame({'x': landmarks[:, 0], 'y': landmarks[:, 1], 'z': landmarks[:, 2]})
-        fig_data.append(go.Scatter3d(x=landmarks['x'], y=landmarks['y'], z=landmarks['z'], mode='markers+text', text=notes, \
-                                     marker=dict(size=7, color='black',  \
-                                     symbol='cross', opacity=1.0)))
+        landmarks_major = pd.DataFrame({'x': landmarks[::2, 0], 'y': landmarks[::2, 1], 'z': landmarks[::2, 2]})
+        landmarks_minor = pd.DataFrame({'x': landmarks[1::2, 0], 'y': landmarks[1::2, 1], 'z': landmarks[1::2, 2]})
+        fig_data.append(go.Scatter3d(x=landmarks_major['x'], y=landmarks_major['y'], z=landmarks_major['z'], mode='markers+text+lines', text=notes[::2], \
+                                     marker=dict(size=7, color='black', symbol='cross', opacity=1.0),
+                                     line=dict(color='darkblue', width=1)))
+        fig_data.append(go.Scatter3d(x=landmarks_minor['x'], y=landmarks_minor['y'], z=landmarks_minor['z'], mode='markers+text+lines', text=notes[1::2], \
+                                     marker=dict(size=7, color='black', symbol='cross', opacity=1.0),
+                                     line=dict(color='darkblue', width=1)))
+        # Plots connections between corresponding on the circle of fifths major and minor points
+        for i in range(12):
+          connection = np.concatenate([landmarks[::2][i].reshape(1,-1), landmarks[1::2][(i + 3) % 12].reshape(1,-1)], axis=0)
+          connection = pd.DataFrame({'x': connection[:, 0], 'y': connection[:, 1], 'z': connection[:, 2]})
+          fig_data.append(go.Scatter3d(x=connection['x'], y=connection['y'], z=connection['z'], mode='lines', \
+                                        line=dict(color='purple', width=1)))
         name += '_with_landmarks_' + str(len(landmarks))
     fig = go.Figure(data=fig_data)
     fig.update_layout()
     if save:
         fig.write_html(name+'.html')
     fig.show()
-
+    
 # Here is auxiliary functions for plotting 
 # the distribution of clusters over the circle of fifths
 # They prepare the output of get_note_pairs_per_cluster for visualization
