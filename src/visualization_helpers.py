@@ -95,6 +95,21 @@ notes = ['C Major', 'C Minor', 'G Major', 'G Minor', 'D Major', 'D Minor',
          'F# Major', 'F# Minor', 'C# Major', 'C# Minor', 'G# Major', 'G# Minor',  
          'D# Major', 'D# Minor', 'A# Major', 'A# Minor', 'F Major', 'F Minor', 'C Major', 'C Minor']
 
+def get_transpositions(points):
+    '''
+    Returns all possible transpositions of given points corresponding 
+    to the circle of fifths 
+    Parameters:
+    - points: array-like (number of samples, 12)
+    Return:
+    - transpositions: array-like (number of samples * 12, 12)
+      Transposed points
+    '''
+    transpositions = points
+    for i in range(1, 12):
+        transpositions = np.concatenate([transpositions, np.roll(points, i * 7, -1)], axis=0)
+    return transpositions
+
 def get_landmarks(landmark_name):
     '''
     Returns all possible transpositions of a given profile
@@ -105,16 +120,13 @@ def get_landmarks(landmark_name):
     - landmarks: array-like
       An array of all possible transpositions (12 major and 12 minor) for a given landmark_name
     '''
-    num_transp = 12
     orig_profile = np.stack([profiles[landmark_name]['major'], profiles[landmark_name]['minor']], axis=0).astype(np.float64)
-    transp_landmarks = orig_profile
-    for i in range(1, num_transp):
-        transp_landmarks = np.concatenate([transp_landmarks, np.roll(orig_profile, i * 7, -1)], axis=0)
-    transp_landmarks = np.concatenate([transp_landmarks, orig_profile], axis=0)
+    transp_landmarks = np.concatenate([get_transpositions(orig_profile), orig_profile], axis=0)
     return transp_landmarks  
 
-def plot_transposition_with_centers(data, transposition, major_minor, text, assignments=None, landmarks=False, \
-                                    landmark_name='albrecht', type_name='colours', opacity=0.7, size=4, save=True):
+def plot_transposition_with_centers(data, transposition=None, major_minor=None, text=None, assignments=None, maj_min_color=True, landmarks=False, \
+                                    landmark_name='albrecht', centers_transposition=False, type_name='colours', \
+                                    opacity=0.7, size=4, save=True):
     '''
     Plots data points in 3D space colorizing them by their transposition as well as centers of the found clusters.
     Both major and minor parts of points can be viewed either simultaneously or separately. 
@@ -130,12 +142,16 @@ def plot_transposition_with_centers(data, transposition, major_minor, text, assi
         - assignments: array-like (number of samples, )
           An array of integer numbers that assigns points to a certain cluster. 
           If None is given, it doesn't plot centers. Default: None
+        - maj_min_color: bool
+          If True, it colors by transpositions otherwise by clusters
         - landmarks: bool
           If this parameter is True, it plots landmarks for a chosen in landmark_name
           profile. Default: False
         - landmark_name: str
           It defines a profile which is used for plotting landmarks. 
           Options: "metadata", "bayes", "krumhansl", "temperley", "albrecht"
+        - centers_transposition: bool
+          If True, it plots all transpositions of centers. Default: False
         - type_name: str
           A name that characterizes given groups. Default: 'colours'
         - opacity: float or array-like (number of samples, )
@@ -146,30 +162,53 @@ def plot_transposition_with_centers(data, transposition, major_minor, text, assi
         - save: bool
           It saves the plot in HTML format when the parameter is True. Default: True
     '''
+    assert np.all(transposition!=None) * np.all(major_minor!=None) * np.all(text!=None) + np.all(assignments!=None), \
+           'You must pass at least assignments!'
     isomap = Isomap(n_components=3)
     data_proj = isomap.fit_transform(data) # gets projected data by means of Isomap
     # Forms major and minor DataFrames
-    df_major = pd.DataFrame({'note': transposition[major_minor==1], 'x': data_proj[major_minor==1, 0], \
-                       'y': data_proj[major_minor==1, 1], 'z': data_proj[major_minor==1, 2], 'text': text[major_minor==1]})
-    df_minor = pd.DataFrame({'note': transposition[major_minor==0], 'x': data_proj[major_minor==0, 0], \
-                        'y': data_proj[major_minor==0, 1], 'z': data_proj[major_minor==0, 2], 'text': text[major_minor==0]})
-    # Plots points with its transpositions
-    fig_data = [go.Scatter3d(x=df_major['x'], y=df_major['y'], z=df_major['z'], mode='markers', text=df_major['text'], \
-                             marker=dict(size=size, color=df_major['note'], opacity=opacity)),
-                go.Scatter3d(x=df_minor['x'], y=df_minor['y'], z=df_minor['z'], mode='markers', text=df_minor['text'], \
-                             marker=dict(size=size, color=df_minor['note'], opacity=opacity))]
-    name = 'major_minor_transposition'
+    if maj_min_color == True:
+        df_major = pd.DataFrame({'note': transposition[major_minor==1], 'x': data_proj[major_minor==1, 0], \
+                          'y': data_proj[major_minor==1, 1], 'z': data_proj[major_minor==1, 2], 'text': text[major_minor==1]})
+        df_minor = pd.DataFrame({'note': transposition[major_minor==0], 'x': data_proj[major_minor==0, 0], \
+                            'y': data_proj[major_minor==0, 1], 'z': data_proj[major_minor==0, 2], 'text': text[major_minor==0]})
+        # Plots points with its transpositions
+        fig_data = [go.Scatter3d(x=df_major['x'], y=df_major['y'], z=df_major['z'], mode='markers', text=df_major['text'], \
+                                marker=dict(size=size, color=df_major['note'], opacity=opacity)),
+                    go.Scatter3d(x=df_minor['x'], y=df_minor['y'], z=df_minor['z'], mode='markers', text=df_minor['text'], \
+                                marker=dict(size=size, color=df_minor['note'], opacity=opacity))]
+        name = 'major_minor_transposition'
+    # Colorize by clusters
+    else:
+        num_clusters = np.unique(assignments).shape[0]
+        fig_data = []
+        for i in range(num_clusters):
+            df = pd.DataFrame({'x': data_proj[assignments == i, 0], 'y': data_proj[assignments == i, 1], 'z': data_proj[assignments == i, 2]})
+            fig_data.append(go.Scatter3d(x=df['x'], y=df['y'], z=df['z'], mode='markers', \
+                                marker=dict(size=size, colorscale='Viridis', color=i, opacity=opacity)))
+        name = 'clusters'
     if np.all(assignments != None):
         # Finds cluster centers
         centers = []
         for i in np.unique(assignments):
-            centers.append(np.mean(data_proj[assignments == i], axis=0))
+            centers.append(np.mean(data[assignments == i], axis=0))
         centers = np.array(centers)
-        # Plots clusters centers
-        centers = pd.DataFrame({'x': centers[:, 0], 'y': centers[:, 1], 'z': centers[:, 2]})
-        fig_data.append(go.Scatter3d(x=centers['x'], y=centers['y'], z=centers['z'], mode='markers', text='Center', \
-                                     marker=dict(size=10, colorscale='Viridis', color=np.arange(centers.shape[0]),  \
-                                     symbol='diamond', opacity=1.0)))
+        if not centers_transposition:
+            # Plots clusters centers
+            centers = isomap.transform(centers)
+            centers = pd.DataFrame({'x': centers[:, 0], 'y': centers[:, 1], 'z': centers[:, 2]})
+            fig_data.append(go.Scatter3d(x=centers['x'], y=centers['y'], z=centers['z'], mode='markers', text='Center', \
+                                        marker=dict(size=10, colorscale='Viridis', color=np.arange(centers.shape[0]),  \
+                                        symbol='diamond', opacity=1.0)))
+        else:
+            num_centers = centers.shape[0]
+            centers = get_transpositions(centers)
+            centers = isomap.transform(centers)
+            for i in range(num_centers):
+                center = pd.DataFrame({'x': centers[i:][::num_centers, 0], 'y': centers[i:][::num_centers, 1], 'z': centers[i:][::num_centers, 2]})
+                fig_data.append(go.Scatter3d(x=center['x'], y=center['y'], z=center['z'], mode='markers', text='Center', \
+                                            marker=dict(size=10, colorscale='Viridis', color=i,  \
+                                            symbol='diamond', opacity=1.0)))
         name += '_with_centers_' + str(len(centers))
     if landmarks:
         # Plots connected landmarks
