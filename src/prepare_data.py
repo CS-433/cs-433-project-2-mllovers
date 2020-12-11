@@ -56,17 +56,30 @@ def get_data_with_metadata(path_metadata= "metadata.csv",
     for r, _, f in os.walk(data_dir):
         for file in f:
             try:
+                peace = np.zeros((data_points_per_scape, no_of_notes + 2))
                 # read the score into a pitch scape
-                pitch_scape = rd.sample_scape(n_time_intervals=n_times, file_path=os.path.join(r, file), prior_counts= prior_counts)
-                normalized_pitch_scape = pitch_scape / np.sum(pitch_scape, axis = 1).reshape(data_points_per_scape,1)
+                scape = rd.get_pitch_scape(os.path.join(r, file), prior_counts= prior_counts)
+                times = np.linspace(scape.min_time, scape.max_time, n_times + 1)
+                cnt = 0
+                if pitch_scape.min_time < 0:
+                    continue
+                for start, end in product(times, times):
+                    if start >= end:
+                        continue
+                    pitch_scape = scape[start, end]
+                    normalized_pitch_scape = pitch_scape / np.sum(pitch_scape) #.reshape(data_points_per_scape,1)
+                    peace[cnt,:no_of_notes] = normalized_pitch_scape
+                    peace[cnt,-2] = (end - start)
+                    peace[cnt,-1] = (end - start) / (scape.max_time - scape.min_time)
+                    cnt += 1
                 
                 # creating dictionary for data frame
-                for i in range(normalized_pitch_scape.shape[0]): # iterate over scapes
+                for i in range(peace.shape[0]): # iterate over scapes
                     # dataframe for specific peace
                     peace_dict = {}
                     for j in range(no_of_notes): # iterate over notes
                         # add pitch scape columns to peace dataframe 
-                        peace_dict[str(j)] = normalized_pitch_scape[i][j]
+                        peace_dict[str(j)] = peace[i][j]
                     df_peace = df_metadata.loc[df_metadata['filename'] == file]
                     # adding metadata parameters
                     for param in metaparam:
@@ -82,6 +95,7 @@ def get_data_with_metadata(path_metadata= "metadata.csv",
     data['song_id'] = pd.factorize(data['filename'])[0]
     # removing NaNs from notes columns
     data = removeNaNs(data, no_of_notes)
+    data = data.rename(columns={str(no_of_notes): "time_window_absolute", str(no_of_notes + 1): "time_window_normalized"})
     # save dataframe
     if store_csv is not None:
         data.to_csv(store_csv, float_format='%.15f')
@@ -168,7 +182,7 @@ def get_data_with_metadata_ignore_zeros(df_md,
     data['song_id'] = pd.factorize(data['filename'])[0]
 
     # name time_window column
-    data.rename(columns={"12": "time_window"})
+    data = data.rename(columns={"12": "time_window"})
     # removing NaNs from notes columns
     data = removeNaNs(data, no_of_notes)
     # save dataframe
