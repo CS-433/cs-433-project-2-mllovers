@@ -1,1 +1,33 @@
 # Music beyond Major and Minor
+
+Western music, in general, is usually thought of as being either in a major or minor key. In reality, there are more sophisticated characteristics in the tonality of the piece. The aim of the project is to discover novel relevant keys, the ones that are beyond major and minor, which can provide fascinating insights.
+
+Different statistical approaches represent powerful tools to explain and confirm the findings from the music theory. However, the numbers or labels that represent music piece are not easy to retrieve. Here, we use a model of the [pitch scape representation](https://github.com/robert-lieck/pitchscapes) introduced by Robert Lieck, which is applicable to different music eras.
+
+In our work, we focus on visualization techniques that can help in explaining the structure of the space of pitch-class distributions. Auxiliary tools for this are Dirichlet mixture model (DMM) and Isomap method.
+
+- All provided data is provided by DCML, EPFL lab and it can be found in '/data'. The folder is organized by composers and files in subdirectories are in xml format. Additionally, there is 'metadata.csv' where some additional metadata information about the pieces can be found. The dataset is PRIVATE and belongs to DCML EPFL lab.
+
+- The folder '/src' has the following files:
+<br />'DMM.py' - Dirichlet mixture model class. There likelihoods and predictions are calculated. It is also used for the plotting of clusters. 
+<br />'cluster_correlation_table.py' - Calculates the table for correlation checking between predicted clusters.
+<br />'estimate_scape.py' - Estimates a given set of pitch scapes and returns their scores agreed to profiles, their belongins to a certain key, whether it is major or minor
+<br />'get_note_pair_per_cluster.py' - Obtains the most significant profiles for the cluster (calculate frequencies of pairs for each clusters)
+<br />'prepare_data.py' - Reads data, calculates pitches and connect it to metadata. Metadata that is used is the duration of pitch scape (relatively to the whole piece)
+<br />'training.py' - Trains the model
+<br />'visualization_helpers.py' - This script is used for all visualizations. First, it can be used for plotting high-dimensional points in chosen space (2D or 3D) colorizing them by groups using Isomap. Next, it plots data points in 3D space colorizing them by their transposition as well as centers of the found clusters. Both major and minor parts of points can be viewed either simultaneously or separately. Finally, it plots the distribution of notes pairs over the circle of fifths for every obtained cluster.
+
+- There is also 'main.ipynb' - a notebook that uses the whole code and shows all the visualizations. 
+
+### Running the model
+
+Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [Google collab](http://colab.research.google.com/).
+
+The external libraries are listed in 'requirements.txt'.
+
+
+### Authors
+
+- Aleksandr Timofeev: aleksandr.timofeev@epfl.ch
+- Andrei Afonin: andrei.afonin@epfl.ch
+- Dubravka Kutlesic: dubravka.kutlesic@epfl.ch
