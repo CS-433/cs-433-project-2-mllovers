@@ -3,8 +3,10 @@
 #-------------------------------------------------------------
 
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
 import plotly.graph_objects as go
+import plotly.express as px
 from sklearn.manifold import Isomap
 
 
@@ -243,9 +245,10 @@ def plot_transposition_with_centers(data, transposition=None, major_minor=None, 
 # the distribution of clusters over the circle of fifths
 # They prepare the output of get_note_pairs_per_cluster for visualization
 
-circle_of_fifths = ['A E', 'E B', 'B F#', 'F# C#', \     # The original circle use flats in its notation,
-                    'C# G#', 'G# D#', 'D# A#', 'A# F',\  # but for implementation simplicity
-                    'F C', 'C G', 'G D', 'D A']          # we abuse the fact that C# == Db
+circle_of_fifths = ['A E', 'E B', 'B F#', 'F# C#', 'C# G#', 'G# D#', 'D# A#', 'A# F', 'F C', 'C G', 'G D', 'D A']
+                      # The original circle use flats in its notation,
+                      # but for implementation simplicity
+                      # we abuse the fact that C# == Db
 
 
 def clear_cluster_dict(cluster_dict):
@@ -341,12 +344,13 @@ def plot_distr_over_circle(cluster_dict, max_radius=5):
     cluster_dict_copy = clear_cluster_dict(cluster_dict_copy)
     cluster_dict_copy = rename_keys(cluster_dict_copy)
     cluster_dict_copy = normalize(cluster_dict_copy)
-    radius_values = prepare_radius(cluster_dict_copy, circle_of_fifths)
+    radius_values = prepare_radius(cluster_dict_copy)
 
     bar_polar_plots = []
     for i in range(num_clusters):
         bar_polar_plots.append(go.Barpolar(
                                               r=radius_values[i],
+                                              name='cluster '+str(i),
                                               theta=circle_of_fifths,
                                               width=np.ones(12),
                                               marker_color=i,
@@ -355,11 +359,12 @@ def plot_distr_over_circle(cluster_dict, max_radius=5):
                                           ))
 
     fig = go.Figure(bar_polar_plots)
+    fig.update_layout(width=600, height=600)
     fig.update_layout(
                       template=None,
                       polar = dict(
                           radialaxis = dict(range=[0, max_radius], showticklabels=False, ticks='',  showgrid=False),
                           angularaxis = dict(showticklabels=True, ticks='outside', direction = "clockwise",  rotation=0, showgrid=False),
-                          barmode="overlay")
-                     )
+                          barmode="overlay"),
+                      width=600, height=600)
     fig.show()
