@@ -10,7 +10,7 @@ import plotly.express as px
 from sklearn.manifold import Isomap
 
 
-def plot_by_groups(data, colours, type_name='colours', is_str=False opacity=1.0, name=None, size=4, dim=2):
+def plot_by_groups(data, colours, type_name='colours', is_str=False, opacity=1.0, name=None, size=4, dim=2):
     '''
     Plots high-dimensional points in chosen space (2D or 3D) colorizing them
     by groups. It uses Isomap algorithm for projecting onto 2D or 3D space.
@@ -36,10 +36,11 @@ def plot_by_groups(data, colours, type_name='colours', is_str=False opacity=1.0,
     '''
     assert (dim == 2) or (dim == 3), 'The parameter dim must be 2 or 3'
     
-    fig = plt.figure(figsize=(8, 8))
     data_proj = Isomap(n_components=dim).fit_transform(data) # gets projected data by means of Isomap
     if not is_str:
         colours_str = pd.Series(colours.astype(np.int), dtype='string')
+    else:
+        colours_str = colours
     if dim == 2:
         df = pd.DataFrame({type_name: colours_str, 'x':data_proj[:, 0], 'y':data_proj[:, 1], \
                            'size':size*np.ones(data_proj.shape[0])}) # forms DataFrame for using plotly functions
@@ -51,6 +52,7 @@ def plot_by_groups(data, colours, type_name='colours', is_str=False opacity=1.0,
     if name != None:
         fig.write_html(name + ".html")
     fig.show()
+
     
 profiles = {
     "metadata": {
