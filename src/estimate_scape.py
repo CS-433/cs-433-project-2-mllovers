@@ -28,7 +28,7 @@ def estimate_scape(data):
     # scores: Nx2x12 (data points x major/minor x transposition)
     scores = k.get_score(data)
     # best matching key: Nx2
-    best_match = k.get_estimate(pitch_class_counts)
+    best_match = k.get_estimate(data)
     major_minor = best_match[:, 0]
     transposition = best_match[:, 1]
     full_key = key_estimates_to_str(best_match, use_capitalisation=False)
