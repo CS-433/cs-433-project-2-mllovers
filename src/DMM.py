@@ -4,6 +4,7 @@ from torch.nn.functional import softmax, log_softmax
 from sklearn.manifold import Isomap
 import matplotlib.pyplot as plt
 from visualization_helpers import plot_by_groups
+torch.manual_seed(0)
 
 class DirichletMixture(Module):
     def __init__(self, M, sparsity=0, D=12, transposition=True):
