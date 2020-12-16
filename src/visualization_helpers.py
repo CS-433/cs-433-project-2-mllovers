@@ -10,7 +10,7 @@ import plotly.express as px
 from sklearn.manifold import Isomap
 
 
-def plot_by_groups(data, colours, type_name='colours', opacity=1.0, name=None, size=4, dim=2):
+def plot_by_groups(data, colours, type_name='colours', is_str=False opacity=1.0, name=None, size=4, dim=2):
     '''
     Plots high-dimensional points in chosen space (2D or 3D) colorizing them
     by groups. It uses Isomap algorithm for projecting onto 2D or 3D space.
@@ -21,6 +21,8 @@ def plot_by_groups(data, colours, type_name='colours', opacity=1.0, name=None, s
           An array of digits or strings denoting affiliation to a certain group
         - type_name: str
           A name that characterizes given groups. Default: 'colours'
+        - is_str: bool
+          if this parameter is True, it doesn't convert colours in string
         - opacity: float or array-like (number of samples, )
           A parameter is in the interval [0, 1] that determines the visibility of points. 
           Default: 1.0
@@ -36,7 +38,8 @@ def plot_by_groups(data, colours, type_name='colours', opacity=1.0, name=None, s
     
     fig = plt.figure(figsize=(8, 8))
     data_proj = Isomap(n_components=dim).fit_transform(data) # gets projected data by means of Isomap
-    colours_str = pd.Series(colours.astype(np.int), dtype='string')
+    if not is_str:
+        colours_str = pd.Series(colours.astype(np.int), dtype='string')
     if dim == 2:
         df = pd.DataFrame({type_name: colours_str, 'x':data_proj[:, 0], 'y':data_proj[:, 1], \
                            'size':size*np.ones(data_proj.shape[0])}) # forms DataFrame for using plotly functions
