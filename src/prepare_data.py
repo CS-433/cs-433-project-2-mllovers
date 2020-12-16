@@ -14,7 +14,7 @@ def get_data_with_metadata(path_metadata= "metadata.csv",
                             metaparam= ['filename','composer', 'no_notes', 'entropy', 'display_year',
                                 'work_group', 'work catalogue','opus', 'no'],
                             report_broken_files= False,
-                            store_csv = None):
+                            store_csv = False):
     """
     Creates a dataframe from .xml files and metadata csv file
     For each music peace (n_times + 1)* n_times / 2 pitch scape is extracted.
@@ -97,8 +97,8 @@ def get_data_with_metadata(path_metadata= "metadata.csv",
     data = removeNaNs(data, no_of_notes)
     data = data.rename(columns={str(no_of_notes): "time_window_absolute", str(no_of_notes + 1): "time_window_normalized"})
     # save dataframe
-    if store_csv is not None:
-        data.to_csv(store_csv, float_format='%.15f')
+    if store_csv:
+        data.to_csv(data, float_format='%.15f')
     return data
 
 
@@ -110,7 +110,7 @@ def get_data_with_metadata_ignore_zeros(df_md,
                                         metaparam = ['filename','composer', 'no_notes', 'entropy', 'display_year',
                                             'work_group', 'work catalogue','opus', 'no'],
                                         report_broken_files= False,
-                                        store_csv = None):
+                                        store_csv = False):
 
     """
     Creates a dataframe from .xml files and metadata csv file
@@ -186,8 +186,8 @@ def get_data_with_metadata_ignore_zeros(df_md,
     # removing NaNs from notes columns
     data = removeNaNs(data, no_of_notes)
     # save dataframe
-    if store_csv is not None:
-        data.to_csv(store_csv, float_format='%.15f')
+    if store_csv:
+        data.to_csv(data, float_format='%.15f')
     return data
 
 
