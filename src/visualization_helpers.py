@@ -53,6 +53,47 @@ def plot_by_groups(data, colours, type_name='colours', is_str=False, opacity=1.0
         fig.write_html(name + ".html")
     fig.show()
 
+def plot_wave(data, major_minor, opacity=1.0, name=None, size=4):
+    '''
+    Plots high-dimensional points in chosen space (2D or 3D) colorizing them
+    by groups. It uses Isomap algorithm for projecting onto 2D or 3D space.
+    Parameters:
+        - data: array-like (number of samples, number of features)
+          A high-dimensional data (pitch scapes)
+        - major_minor: array-like (number of samples, )
+          Shows to which key a pointbelongs to
+        - opacity: float or array-like (number of samples, )
+          A parameter is in the interval [0, 1] that determines the visibility of points. 
+          Default: 1.0
+        - name: str
+          A name that is used for saving the plot. If None is given, it doesn't save the plot.
+          Default: None
+        - size: int
+          A parameter that defines the size of points. Default: 4
+    '''
+     # gets projected data by means of Isomap
+    isomap = Isomap(n_components=3)
+    data_proj = isomap.fit_transform(data)
+
+    major = isomap.fit_transform(data_proj[major_minor==0])
+    minor = isomap.fit_transform(data_proj[major_minor==1])
+
+    figdata = [go.Scatter3d(x=major[:, 0], y=major[:, 1], z=major[:, 2], mode='markers', name='Major',
+                            marker=dict(
+                                size=size*np.ones(major.shape[0]),
+                                color='darkviolet',                # set color to an array/list of desired values
+                                opacity=opacity
+                            )),
+              go.Scatter3d(x=minor[:, 0], y=minor[:, 1], z=minor[:, 2], mode='markers', name='Minor',
+                            marker=dict(
+                                size=size*np.ones(minor.shape[0]),
+                                color='darkorange',                # set color to an array/list of desired values
+                                opacity=opacity
+                            ))]   
+    fig = go.Figure(data=figdata) 
+    if name != None:
+        fig.write_html(name + ".html")
+    fig.show()    
     
 profiles = {
     "metadata": {
