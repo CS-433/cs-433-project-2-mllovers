@@ -8,6 +8,19 @@ In our work, we focus on visualization techniques that can help in explaining th
 
 - The data is stored in XML files and it is converted to pitch-class distributions connected to its metadata info. Since we could not upload the original data (due to size), we uploaded already processed CSV-s to dropbox, but we provide (in the main notebook) the way how we got CSV-s from original data. The dataset is private and belongs to DCML EPFL lab. The folder with the original data is organized by composers and files in subdirectories are in XML format. Additionally, there is 'metadata.csv' where some additional metadata information about the pieces can be found (e.g., year). 
 
+
+### Running the model
+
+Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [Google colab](http://colab.research.google.com/). One can try running the code on a local machine. However, due to the lack of memory that we faced, the only way we recommend running the code is on Google collab. Moreover, for some machines, plots can be displayed incorrectly and are not seen anywhere besides Google collab.
+
+The external libraries are listed in 'requirements.txt'. The main library pitchscapes was used on the development branch and it should be used with the following command: 
+'! git clone -b develop https://github.com/robert-lieck/pitchscapes.git'
+
+The notebook 'main.ipynb' contains the whole pipeline of installing requirements, getting the data and source code and it shows the most exciting findings.
+
+
+### Repository structure
+
 - The folder '/src' has the following files:
 <br />'DMM.py' - Dirichlet mixture model class. There likelihoods and predictions are calculated. It is also used for the plotting of clusters. 
 <br />'cluster_correlation_table.py' - Calculates the table for correlation checking between predicted clusters.
@@ -18,12 +31,6 @@ In our work, we focus on visualization techniques that can help in explaining th
 <br />'visualization_helpers.py' - This script is used for all visualizations. First, it can be used for plotting high-dimensional points in the chosen space (2D or 3D), colorizing them by groups using Isomap. Next, it plots data points in 3D space, colorizing them by their transposition and centers of the found clusters. Both major and minor parts of points can be viewed either simultaneously or separately. Finally, it plots the distribution of note pairs over the circle of fifths for every obtained cluster.
 
 - There is also 'main.ipynb' - a notebook that uses the whole code and shows all the visualizations. 
-
-### Running the model
-
-Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [Google colab](http://colab.research.google.com/). One can try running the code on a local machine. However, due to the lack of memory that we faced, the only way we recommend running the code is on Google colab. Moreover, for some machines plots can be displayed incorrect as well as they are not seen anywhere besides Google colab.
-
-The external libraries are listed in 'requirements.txt'.
 
 
 ### Authors
