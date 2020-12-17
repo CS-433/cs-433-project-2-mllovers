@@ -12,7 +12,7 @@ In our work, we focus on visualization techniques that can help in explaining th
 ### Running the model
 
 Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CS-433/cs-433-project-2-mllovers/blob/main/main.ipynb). One can try running the code on a local machine. However, due to the lack of memory that we faced, the only way we recommend running the code is on Google collab. 
-If you are trying to reproduce the code on a local machine, you will likely get an error that not enough workspace and array storage has been allocated. The first solution would be to plot fewer points, but in that case, the results will not be meaningful (plots can be displayed incorrectly and are not seen anywhere besides Google collab). Therefore, we strongly advise reproducing our work on Google collab.
+If you are trying to reproduce the code on a local machine, you will likely get an error that not enough workspace and array storage has been allocated. The first solution would be to plot fewer points, but in that case, the results will not be meaningful (plots can be displayed incorrectly and are not seen anywhere besides Google colab). Therefore, we strongly advise reproducing our work on Google colab.
 
 The external libraries are listed in 'requirements.txt'. The main library pitchscapes was used on the development branch and it should be used with the following command: 
 '! git clone -b develop https://github.com/robert-lieck/pitchscapes.git'
