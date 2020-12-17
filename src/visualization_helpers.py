@@ -1,7 +1,3 @@
-#-------------------------------------------------------------
-# Keeps code for visualization pitch scapes in 2D or 3D space
-#-------------------------------------------------------------
-
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
