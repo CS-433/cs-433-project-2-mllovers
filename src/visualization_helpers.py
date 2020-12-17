@@ -133,15 +133,11 @@ profiles = {
                   0.06212424849699398, 0.022044088176352703, 0.06112224448897795, 0.05210420841683366]}
 }
 
-# notes = ['C Major', 'C Minor', 'C# Major', 'C# Minor', 'D Major', 'D Minor',  
-#          'D# Major', 'D# Minor', 'E Major', 'E Minor', 'F Major', 'F Minor',  
-#          'F# Major', 'F# Minor', 'G Major', 'G Minor', 'G# Major', 'G# Minor',  
-#          'A Major', 'A Minor', 'A# Major', 'A# Minor', 'B Major', 'B Minor']
-
 notes = ['C Major', 'C Minor', 'G Major', 'G Minor', 'D Major', 'D Minor',  
          'A Major', 'A Minor', 'E Major', 'E Minor', 'B Major', 'B Minor',  
          'F# Major', 'F# Minor', 'C# Major', 'C# Minor', 'G# Major', 'G# Minor',  
          'D# Major', 'D# Minor', 'A# Major', 'A# Minor', 'F Major', 'F Minor', 'C Major', 'C Minor']
+
 def get_transpositions(points):
     '''
     Returns all possible transpositions of given points corresponding 
@@ -251,7 +247,6 @@ def plot_transposition_with_centers(data, transposition=None, major_minor=None, 
                                         marker=dict(size=10, colorscale='Viridis', color=np.arange(centers.shape[0]),  \
                                         symbol='diamond', opacity=1.0)))
         else:
-            # num_centers = centers.shape[0]
             centers = get_transpositions(centers)
             centers = isomap.transform(centers)
             for i in range(num_clusters):
@@ -279,7 +274,7 @@ def plot_transposition_with_centers(data, transposition=None, major_minor=None, 
           connection = np.concatenate([landmarks[::2][i].reshape(1,-1), landmarks[1::2][(i + 3) % 12].reshape(1,-1)], axis=0)
           connection = pd.DataFrame({'x': connection[:, 0], 'y': connection[:, 1], 'z': connection[:, 2]})
           fig_data.append(go.Scatter3d(x=connection['x'], y=connection['y'], z=connection['z'], mode='lines', \
-                                        line=dict(color='purple', width=1)))
+                                        line=dict(color='purple', width=1), name='Link '+str(i)))
         name += '_with_landmarks_' + str(len(landmarks))
     fig = go.Figure(data=fig_data)
     fig.update_layout()
