@@ -21,7 +21,7 @@ In our work, we focus on visualization techniques that can help in explaining th
 
 ### Running the model
 
-Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [Google collab](http://colab.research.google.com/). One can try running the code on a local machine. However, due to the lack of memory that we faced, the only way we recommend running the code is on Google collab. 
+Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [Google colab](http://colab.research.google.com/). One can try running the code on a local machine. However, due to the lack of memory that we faced, the only way we recommend running the code is on Google colab. Moreover, for some machines plots can be displayed incorrect as well as they are not seen anywhere besides Google colab.
 
 The external libraries are listed in 'requirements.txt'.
 
