@@ -11,7 +11,7 @@ In our work, we focus on visualization techniques that can help in explaining th
 
 ### Running the model
 
-Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [Google colab](http://colab.research.google.com/). One can try running the code on a local machine. However, due to the lack of memory that we faced, the only way we recommend running the code is on Google collab. Moreover, for some machines, plots can be displayed incorrectly and are not seen anywhere besides Google collab.
+Since running the model is computationally intensive for usual laptop machines, the code should be run in the cloud. For example, one can use [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/DCMLab/music_beyond_major_and_minor_afonin_timofeev_kutlesic/blob/main/main.ipynb). One can try running the code on a local machine. However, due to the lack of memory that we faced, the only way we recommend running the code is on Google collab. Moreover, for some machines, plots can be displayed incorrectly and are not seen anywhere besides Google collab.
 
 The external libraries are listed in 'requirements.txt'. The main library pitchscapes was used on the development branch and it should be used with the following command: 
 '! git clone -b develop https://github.com/robert-lieck/pitchscapes.git'
